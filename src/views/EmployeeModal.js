@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
 import Checkboxes from "./Checkboxes";
 import axiosInstance from "../utilities/axios";
- 
-//import './modal.css'
+  
 import 'bootstrap/dist/css/bootstrap.css'
 
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form'; 
 
-const EMPLOYEE_TYPES = ['staff', 'admin', 'medical', 'clerical', 'housekeeping'];  
+const EMPLOYEE_TYPES = ['Admin', 'Medical', 'Clerical', 'Housekeeping'];  
 
 const renameKeys = (keysMap, objArray) => {
   return objArray.map(obj => {
-    const newObj = {};
-    Object.keys(obj).forEach(key => {
+    const newObj = { /* empty object */ };
+    Object?.keys(obj).forEach(key => {
       const renamedKey = keysMap[key] || key;
       newObj[renamedKey] = obj[key];
     });
@@ -31,7 +30,7 @@ const EmployeeModal = ({ handleCloseCallback, show, setShow, employeeInit = {} }
     }, [employeeInit])
  
     useEffect(() => {  
-        axiosInstance.get('department')
+        axiosInstance.get('/api/department')
           .then(response => {   
               let data= renameKeys({ departmentId: "value" }, response.data)
               setDepartments(data) 
@@ -60,32 +59,33 @@ const EmployeeModal = ({ handleCloseCallback, show, setShow, employeeInit = {} }
 
     const handleClose = () => { 
         if (employee.employeeId) { 
-            axiosInstance.put('employee/' + employee.employeeId, employee)
+            axiosInstance.put('/api/employee/' + employee.employeeId, employee)
             .then(response => { 
                 handleCloseCallback() 
             })
             .catch(err => { 
-                console.log(err) 
+                if (err.response.data) alert(err.response.data)
+                else console.log(err) 
             })
         }
         else { 
-            axiosInstance.post('employee', employee)
+            console.log("new employee", employee)
+            axiosInstance.post('/api/employee', employee)
             .then(response => {  
                 handleCloseCallback() 
             })
             .catch(err => {
-              console.log(err) 
+                if (err.response.data) alert(err.response.data)
+                else console.log(err) 
             })
         } 
         setShow(false)
     }
-
  
-
 
     return ( 
 
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Employee Information</Modal.Title>
         </Modal.Header>
@@ -115,12 +115,14 @@ const EmployeeModal = ({ handleCloseCallback, show, setShow, employeeInit = {} }
                     <br/>  
 
                     <Form.Label htmlFor='type'>Type</Form.Label><br/>
-                    <Form.Select name="type" value={employee.type} onChange={handleChange}>
+                    <Form.Select name="type" value={employee.type} onChange={handleChange} required>
+
+                        <option disabled selected={employee.type === ""} value="" style={{display:'none'}}> -- select an option -- </option>
                         {EMPLOYEE_TYPES.map((empType) => (
                         <option key={empType} 
                             name={empType} 
                             value={empType} 
-                            selected={employee.type === empType}>
+                            >
                             {empType}
                         </option>
                         ))}
@@ -133,13 +135,10 @@ const EmployeeModal = ({ handleCloseCallback, show, setShow, employeeInit = {} }
                     </div>
 
                 </Form.Group>
-            </form>
-
-
-            
+            </form> 
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+          <Button variant="secondary" onClick={() => setShow(false)}>
             Cancel
           </Button>
           <Button variant="primary" onClick={handleClose}>

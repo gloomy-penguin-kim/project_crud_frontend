@@ -1,19 +1,10 @@
-import axiosInstance from '../utilities/axios.js'
+import axiosInstance from '../utilities/axios'
 import { useEffect, useState } from 'react'
-import EmployeeModal from './EmployeeModal.js' 
-import { useParams, Link } from 'react-router-dom'
-
+import EmployeeModal from './EmployeeModal' 
+import { useParams } from 'react-router-dom'
+ 
 import 'bootstrap/dist/css/bootstrap.css'
-// // const renameKeys = (keysMap, objArray) => {
-//   return objArray.map(obj => {
-//     const newObj = {};
-//     Object.keys(obj).forEach(key => {
-//       const renamedKey = keysMap[key] || key;
-//       newObj[renamedKey] = obj[key];
-//     });
-//     return newObj;
-//   });
-// };
+import './css/table.css'
 
 const enumPageState = Object.freeze({
   EMPLOYEES:   "Employees",
@@ -35,47 +26,37 @@ const Employee = () => {
   const { urlParam } = useParams() 
 
   const [ pageState, setPageState ] = useState(); 
-
-
-  // const loadDepartments = () => {
-  //   axiosInstance.get('department')
-  //     .then(response => {   
-  //         let data = response.data
-  //         data = renameKeys({ departmentId: "value" }, data)
-  //         setDepartments(data) 
-  //     })
-  //     .catch(err => {
-  //       setPageState(enumPageState.ERROR)
-  //       console.log(err) 
-  //     }) 
-  // }
+ 
   
   const loadEmployees = () => { 
-    axiosInstance.get('employee')
+    axiosInstance.get('/api/employee')
       .then(response => { 
           setPageState(enumPageState.EMPLOYEES)
           setEmployees(response.data)
           console.log(employees) 
       })
       .catch(err => {
+        if (err.response?.data) alert(err.response.data)
         setPageState(enumPageState.ERROR)
         console.log(err) 
       })
   } 
 
   const loadUnassigned = () => {
-    axiosInstance.get('views/by-unassigned-employees')
+    axiosInstance.get('/api/views/by-unassigned-employees')
       .then(response => {    
           setPageState(enumPageState.UNASSIGNED)
           setEmployees(response.data) 
       })
       .catch(err => {
+        if (err.response?.data) alert(err.response.data)
+        setPageState(enumPageState.ERROR)
         console.log(err) 
       }) 
   }   
   
   const loadOneEmployee = () => { 
-    axiosInstance.get('employee/'+ encodeURIComponent(urlParam))
+    axiosInstance.get('/api/employee/'+ encodeURIComponent(urlParam))
       .then(response => { 
         if (response.data.length > 0) {  
           console.log("employee found!", response.data)
@@ -109,9 +90,7 @@ const Employee = () => {
     }
   }, [urlParam])
 
-  const editEmployee = (employeeInfo) => {
-    console.log("edit employee", employeeInfo)
-    console.log("editEmployee", pageState)
+  const editEmployee = (employeeInfo) => { 
     setEmployee(employeeInfo) 
     setShowEditModal(true) 
   }
@@ -135,8 +114,7 @@ const Employee = () => {
     console.log("new employee", employee)
   }
  
-  const employeeModalCallback = () => {
-    console.log("employeeModalCallback", pageState)
+  const employeeModalCallback = () => { 
     if (pageState === enumPageState.EMPLOYEES) {
       loadEmployees() 
     }
@@ -146,22 +124,27 @@ const Employee = () => {
     else if (pageState === enumPageState.UNASSIGNED) {
       loadUnassigned() 
     }
-    
   }
  
   return (
     <>
     <section>
       <h2>{pageState}</h2>
-      {(pageState === enumPageState.EMPLOYEES || pageState === enumPageState.EMPLOYEE || pageState === enumPageState.UNASSIGNED) && (
+      {(pageState === enumPageState.EMPLOYEES || 
+        pageState === enumPageState.EMPLOYEE  || 
+        pageState === enumPageState.UNASSIGNED) && (
       <table> 
         <thead>
           <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Type</th>
-            <th>Department(s)</th>
-            <th>{pageState === enumPageState.EMPLOYEES && (<button onClick={newEmployee}>New</button>)}</th>
+              <th style={{minWidth:'10rem'}}>First Name</th>
+              <th style={{minWidth:'15rem'}}>Last Name</th>
+              <th style={{minWidth:'10rem'}}>Type</th>
+              <th style={{minWidth:'25rem'}}>Departments</th>
+            <th>
+              {pageState === enumPageState.EMPLOYEES && (
+              <button  style={{color:'indigo'}} onClick={newEmployee}>New</button>
+              )}
+            </th>
           </tr> 
         </thead>
         <tbody> 
@@ -171,9 +154,8 @@ const Employee = () => {
               <td>{emp.lastname}</td>
               <td>{emp.type}</td>
               <td>{emp.departmentsName?.join(", ")}</td>
-              {/* <td><Link to={"/employee/"+emp.employeeId}>{emp.employeeId}</Link></td> */}
-              <td><button onClick={() => editEmployee(emp)}>Edit</button></td>
-              <td><button onClick={() => deleteEmployee(emp)}>Delete</button></td>
+              <td><button style={{color:'indigo'}} onClick={() => editEmployee(emp)}>Edit</button></td>
+              <td><button style={{color:'grey'}} onClick={() => deleteEmployee(emp)}>Delete</button></td>
             </tr> 
           ))}
         </tbody>

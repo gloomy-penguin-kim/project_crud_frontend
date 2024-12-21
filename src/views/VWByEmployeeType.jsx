@@ -1,20 +1,23 @@
-import axiosInstance from '../utilities/axios.js'
+import axiosInstance from '../utilities/axios'
 import { useEffect, useState } from 'react' 
 
 import 'bootstrap/dist/css/bootstrap.css';
 
 const VWByEmployeeType = () => {  
-    const employeeTypes = ['staff', 'admin', 'medical', 'clerical', 'housekeeping'];
+    const employeeTypes = ['Admin', 'Medical', 'Clerical', 'Housekeeping'];
     const [employees, setEmployees] = useState([])  
+    const [heading, setHeading] = useState("View by Department")
     
     const loadEmployees = () => { 
-        axiosInstance.get('views/by-employee-type')
+        axiosInstance.get('/api/views/by-employee-type')
         .then(response => { 
             setEmployees(response.data)
             console.log(employees) 
         })
         .catch(err => {
-            console.log(err) 
+          setHeading("Server Error")
+          if (err.response?.data) alert(err.response.data)
+          console.log(err) 
         })
     } 
   
@@ -25,12 +28,12 @@ const VWByEmployeeType = () => {
   return (
     <>
     <section>
-      <h2>View by Employee Type</h2>  
+      <h2>{heading}</h2>  
           {employeeTypes.map(employeeType => (
           <>
           <span><b>{employeeType}</b></span><br/>  
           <table> 
-            {employees.filter(obj => obj.type === employeeType).map(emp => (
+            {employees.filter(obj => obj.type.toLowerCase() === employeeType.toLowerCase()).map(emp => (
               <tr key={emp.employeeId}> 
                 <td style={{minWidth:'15rem'}}>{emp.lastname}, {emp.firstname}</td> 
                 <td>{emp.departmentsName.join(', ')}</td> 

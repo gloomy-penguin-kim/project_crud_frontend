@@ -1,14 +1,13 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'; 
+import { BrowserRouter, Routes, Route } from 'react-router-dom'; 
 
-import Home from './views/Home.js'
-import Employee from './views/Employee.js'
-import Department from './views/Department.js';
-import VWByDepartment from './views/VWByDepartment.js';
-import VWByEmployeeType from './views/VWByEmployeeType.js'
+import Home from './views/Home'
+import Employee from './views/Employee'
+import Department from './views/Department';
+import VWByDepartment from './views/VWByDepartment';
+import VWByEmployeeType from './views/VWByEmployeeType'
 
 import './App.css'
-
-import Container from 'react-bootstrap/Container';
+ 
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 
